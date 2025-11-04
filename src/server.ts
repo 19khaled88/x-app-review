@@ -27,7 +27,7 @@ app.get('/health', (req, res) => {
 });
 
 // get all reviews
-app.get('/reiews/all',async(req,res)=>{
+app.get('/reviews/all',async(req,res)=>{
   try {
     const result = await getAllReviews()
     if(result.success){

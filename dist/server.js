@@ -27,7 +27,7 @@ app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 // get all reviews
-app.get('/reiews/all', async (req, res) => {
+app.get('/reviews/all', async (req, res) => {
     try {
         const result = await (0, review_1.getAllReviews)();
         if (result.success) {

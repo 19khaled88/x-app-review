@@ -12,6 +12,15 @@ const port = process.env.PORT || 3000;
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
+// Home route 
+app.get('/', (req, res) => {
+    try {
+        res.json({ success: true, status: 'OK', timestamp: new Date().toISOString() });
+    }
+    catch (error) {
+        res.json({ success: false, status: '201' });
+    }
+});
 // Routes
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });

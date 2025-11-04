@@ -9,11 +9,25 @@ const prisma_1 = require("../lib/prisma");
 const type_1 = require("../lib/type");
 // get all reviews
 const getAllReviews = async () => {
-    return await prisma_1.prisma.review.findMany({
-        include: {
-            ratings: true,
-        },
-    });
+    try {
+        const res = await prisma_1.prisma.review.findMany({
+            include: {
+                ratings: true,
+            },
+        });
+        return {
+            success: true,
+            data: res,
+            count: res.length,
+        };
+    }
+    catch (error) {
+        return {
+            success: false,
+            error: "Error unknown",
+            details: error instanceof zod_1.default.ZodError ? error.issues : error,
+        };
+    }
 };
 exports.getAllReviews = getAllReviews;
 // create reviews
@@ -50,14 +64,14 @@ const createReviews = async (data) => {
         return {
             success: true,
             data: createdReviews,
-            count: createdReviews.length
+            count: createdReviews.length,
         };
     }
     catch (error) {
         return {
             success: false,
-            error: error instanceof zod_1.default.ZodError ? 'Validation failed' : 'Database error',
-            details: error instanceof zod_1.default.ZodError ? error.issues : error
+            error: error instanceof zod_1.default.ZodError ? "Validation failed" : "Database error",
+            details: error instanceof zod_1.default.ZodError ? error.issues : error,
         };
     }
 };

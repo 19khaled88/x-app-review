@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { createReviews } from './services/review';
+import { createReviews, getAllReviews } from './services/review';
 
 
 const app = express();
@@ -27,11 +27,20 @@ app.get('/health', (req, res) => {
 });
 
 // get all reviews
-app.get('/reiews/all',(req,res)=>{
+app.get('/reiews/all',async(req,res)=>{
   try {
-    
-  } catch (error) {
-    
+    const result = await getAllReviews()
+    if(result.success){
+      return res.status(201).json(result)
+    }else{
+      const statusCode = result.error === 'Error unknown' ? 400 : 500;
+      return res.status(statusCode).json(result)
+    }
+  } catch (error:any) {
+    return res.status(500).json({
+      success:false,
+      error:error.message || 'Internal server error'
+    })
   }
 });
 

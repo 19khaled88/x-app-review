@@ -1,21 +1,42 @@
-import z, { success } from "zod";
+import z from "zod";
 import { prisma } from "../lib/prisma";
 import { ReviewArraySchema } from "../lib/type";
-import { CreateReviewsResult, PrismaReview, ServiceResult } from "../lib/interface";
+import {
+  CreateReviewsResult,
+  PrismaReview,
+  ServiceResult,
+} from "../lib/interface";
 
 // get all reviews
-export const getAllReviews = async () => {
-  return await prisma.review.findMany({
-    include: {
-      ratings: true,
-    },
-  });
+export const getAllReviews = async (): Promise<
+  ServiceResult<PrismaReview[]>
+> => {
+  try {
+    const res = await prisma.review.findMany({
+      include: {
+        ratings: true,
+      },
+    });
+    return {
+      success: true,
+      data: res,
+      count: res.length,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: "Error unknown",
+      details: error instanceof z.ZodError ? error.issues : error,
+    };
+  }
 };
 
-
 // create reviews
+
 // export const createReviews = async (data: unknown):Promise<CreateReviewsResult> => {
-export const createReviews = async (data: unknown):Promise<ServiceResult<PrismaReview[]>> => {
+export const createReviews = async (
+  data: unknown
+): Promise<ServiceResult<PrismaReview[]>> => {
   try {
     // Parsed and validate the input data
     const parsed = ReviewArraySchema.parse(Array.isArray(data) ? data : [data]);
@@ -23,7 +44,6 @@ export const createReviews = async (data: unknown):Promise<ServiceResult<PrismaR
     const createdReviews = [];
 
     for (const review of parsed) {
-
       // calculate total mark
       const totalMark = review.rating.reduce(
         (sum, ratingItem) => sum + ratingItem.mark,
@@ -53,15 +73,16 @@ export const createReviews = async (data: unknown):Promise<ServiceResult<PrismaR
       createdReviews.push(created);
     }
     return {
-        success:true,
-        data:createdReviews,
-        count:createdReviews.length
-    }
+      success: true,
+      data: createdReviews,
+      count: createdReviews.length,
+    };
   } catch (error) {
     return {
-        success:false,
-        error: error instanceof z.ZodError ? 'Validation failed' : 'Database error',
-        details: error instanceof z.ZodError ? error.issues : error
-    }
+      success: false,
+      error:
+        error instanceof z.ZodError ? "Validation failed" : "Database error",
+      details: error instanceof z.ZodError ? error.issues : error,
+    };
   }
 };

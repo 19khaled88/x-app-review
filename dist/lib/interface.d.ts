@@ -18,6 +18,12 @@ interface CreateReviewsError {
     error: string;
     details: z.ZodIssue[] | unknown;
 }
+export interface DeleteResult {
+    success: boolean;
+    data?: any;
+    error?: string;
+    message?: string;
+}
 export type CreateReviewsResult = CreateReviewsSuccess | CreateReviewsError;
 export {};
 //# sourceMappingURL=interface.d.ts.map

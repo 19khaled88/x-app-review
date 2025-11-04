@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createReviews = exports.getAllReviews = void 0;
+exports.deleteAllReviews = exports.deleteReviewsByEvaluator = exports.deleteReviews = exports.deleteReview = exports.createReviews = exports.getAllReviews = void 0;
 const zod_1 = __importDefault(require("zod"));
 const prisma_1 = require("../lib/prisma");
 const type_1 = require("../lib/type");
@@ -30,7 +30,9 @@ const getAllReviews = async () => {
     }
 };
 exports.getAllReviews = getAllReviews;
-// create reviews
+/**
+ * Create reviews
+ */
 // export const createReviews = async (data: unknown):Promise<CreateReviewsResult> => {
 const createReviews = async (data) => {
     try {
@@ -76,4 +78,123 @@ const createReviews = async (data) => {
     }
 };
 exports.createReviews = createReviews;
+/**
+ * Delete a single review by ID
+ */
+const deleteReview = async (id) => {
+    try {
+        // Check if review exists
+        const existingReview = await prisma_1.prisma.review.findUnique({
+            where: { id },
+        });
+        if (!existingReview) {
+            return {
+                success: false,
+                error: "Review not found",
+            };
+        }
+        // Delete the review (this will cascade delete ratings due to relation)
+        const deletedReview = await prisma_1.prisma.review.delete({
+            where: { id },
+        });
+        return {
+            success: true,
+            data: deletedReview,
+            message: "Review deleted successfully",
+        };
+    }
+    catch (error) {
+        console.error("Delete review error:", error);
+        return {
+            success: false,
+            error: "Failed to delete review",
+        };
+    }
+};
+exports.deleteReview = deleteReview;
+/**
+ * Delete multiple reviews by IDs
+ */
+const deleteReviews = async (ids) => {
+    try {
+        // Check if all reviews exist
+        const existingReviews = await prisma_1.prisma.review.findMany({
+            where: {
+                id: { in: ids },
+            },
+        });
+        if (existingReviews.length !== ids.length) {
+            const foundIds = existingReviews.map((review) => review.id);
+            const missingIds = ids.filter((id) => !foundIds.includes(id));
+            return {
+                success: false,
+                error: `Some reviews not found: ${missingIds.join(", ")}`,
+            };
+        }
+        // Delete multiple reviews
+        const result = await prisma_1.prisma.review.deleteMany({
+            where: {
+                id: { in: ids },
+            },
+        });
+        return {
+            success: true,
+            data: result,
+            message: `${result.count} reviews deleted successfully`,
+        };
+    }
+    catch (error) {
+        console.error("Delete reviews error:", error);
+        return {
+            success: false,
+            error: "Failed to delete reviews",
+        };
+    }
+};
+exports.deleteReviews = deleteReviews;
+/**
+ * Delete reviews by evaluator ID
+ */
+const deleteReviewsByEvaluator = async (evaluatorId) => {
+    try {
+        const result = await prisma_1.prisma.review.deleteMany({
+            where: {
+                evaluatorId,
+            },
+        });
+        return {
+            success: true,
+            data: result,
+            message: `${result.count} reviews by evaluator deleted successfully`,
+        };
+    }
+    catch (error) {
+        console.error("Delete reviews by evaluator error:", error);
+        return {
+            success: false,
+            error: "Failed to delete reviews by evaluator",
+        };
+    }
+};
+exports.deleteReviewsByEvaluator = deleteReviewsByEvaluator;
+/**
+ * Delete all reviews (use with caution!)
+ */
+const deleteAllReviews = async () => {
+    try {
+        const result = await prisma_1.prisma.review.deleteMany({});
+        return {
+            success: true,
+            data: result,
+            message: `All ${result.count} reviews deleted successfully`,
+        };
+    }
+    catch (error) {
+        return {
+            success: false,
+            error: "Failed to delete all rows",
+        };
+    }
+};
+exports.deleteAllReviews = deleteAllReviews;
 //# sourceMappingURL=review.js.map

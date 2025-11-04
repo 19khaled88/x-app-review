@@ -27,5 +27,12 @@ interface CreateReviewsError {
   details: z.ZodIssue[] | unknown;
 }
 
+export interface DeleteResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+  message?: string;
+}
+
 
 export type CreateReviewsResult = CreateReviewsSuccess | CreateReviewsError;

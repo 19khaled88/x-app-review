@@ -57,7 +57,7 @@ export const createReviews = async (
       const created = await prisma.review.create({
         data: {
           evaluateeId: review.evaluatee_id,
-          evaluateeName: review.evaluator_name,
+          evaluateeName: review.evaluatee_name,
           evaluatorId: review.evaluator_id,
           evaluatorName: review.evaluator_name,
           totalMark,
